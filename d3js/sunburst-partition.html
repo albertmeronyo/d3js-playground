@@ -67,6 +67,8 @@ d3.json("flare.json", function(error, root) {
         .duration(1500)
         .attrTween("d", arcTween);
   });
+
+  console.dir(path);
 });
 
 // Stash the old values for transition.
