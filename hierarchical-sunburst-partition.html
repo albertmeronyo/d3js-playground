@@ -48,10 +48,6 @@
 
 </style>
 <body>
-<form>
-  <label><input type="radio" name="mode" value="size"> Size</label>
-  <label><input type="radio" name="mode" value="count" checked> Count</label>
-</form>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
 
@@ -127,19 +123,9 @@ d3.json("flare-hierarchical-sizes.json", function(error, classes) {
       .style("fill-rule", "evenodd")
       .each(stash);
 
-  d3.selectAll("input").on("change", function change() {
-    var value = this.value === "count"
-        ? function() { return 1; }
-        : function(d) { return d.size; };
-
-    path
-        .data(partition.value(value).nodes)
-      .transition()
-        .duration(1500)
-        .attrTween("d", arcTween);
-  });
-
   console.dir(path);  
+  console.dir(partition);
+  console.dir(nodes);
 });
 
 function stash(d) {
