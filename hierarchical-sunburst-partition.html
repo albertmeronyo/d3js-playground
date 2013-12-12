@@ -122,6 +122,14 @@ d3.json("flare-hierarchical-sizes.json", function(error, classes) {
       .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
       .style("fill-rule", "evenodd")
       .each(stash);
+    
+  var value = function() { return 1; }
+
+  path
+      .data(partition.value(value).nodes)
+    .transition()
+      .duration(1500)
+      .attrTween("d", arcTween);
 
   console.dir(path);  
   console.dir(partition);
