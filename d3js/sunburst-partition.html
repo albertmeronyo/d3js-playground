@@ -46,6 +46,7 @@ var arc = d3.svg.arc()
     .outerRadius(function(d) { return Math.sqrt(d.y + d.dy); });
 
 d3.json("flare.json", function(error, root) {
+  console.dir(root);
   var path = svg.datum(root).selectAll("path")
       .data(partition.nodes)
     .enter().append("path")
@@ -68,7 +69,6 @@ d3.json("flare.json", function(error, root) {
         .attrTween("d", arcTween);
   });
 
-  console.dir(path);
 });
 
 // Stash the old values for transition.

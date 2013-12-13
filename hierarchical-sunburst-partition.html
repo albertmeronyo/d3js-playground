@@ -76,8 +76,7 @@ var svg = d3.select("body").append("svg")
     .attr("transform", "translate(" + radius + "," + radius + ")");
 
 var link = svg.append("g").selectAll(".link"),
-    node = svg.append("g").selectAll(".node"),
-    path = svg.append("g").selectAll(".path");
+    node = svg.append("g").selectAll(".node");
 
 var partition = d3.layout.partition()
     .sort(null)
@@ -93,6 +92,9 @@ var arc = d3.svg.arc()
 d3.json("flare-hierarchical-sizes.json", function(error, classes) {
   var nodes = cluster.nodes(packageHierarchy(classes)),
       links = packageImports(nodes);
+
+  console.dir(nodes);
+  console.dir(nodes[1]);
 
   link = link
       .data(bundle(links))
@@ -113,44 +115,15 @@ d3.json("flare-hierarchical-sizes.json", function(error, classes) {
       .on("mouseover", mouseovered)
       .on("mouseout", mouseouted);
 
-  path = path
-      .data(nodes)
+  var path = svg.datum(nodes[1]).append("g").selectAll("path")
+      .data(partition.nodes)
     .enter().append("path")
       .attr("display", function(d) { return d.depth ? null : "none"; }) // hide inner ring
       .attr("d", arc)
       .style("stroke", "#fff")
       .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
       .style("fill-rule", "evenodd")
-      .each(stash);
-    
-  var value = function() { return 1; }
-
-  path
-      .data(partition.value(value).nodes)
-    .transition()
-      .duration(1500)
-      .attrTween("d", arcTween);
-
-  console.dir(path);  
-  console.dir(partition);
-  console.dir(nodes);
 });
-
-function stash(d) {
-  d.x0 = d.x;
-  d.dx0 = d.dx;
-}
-
-function arcTween(a) {
-  var i = d3.interpolate({x: a.x0, dx: a.dx0}, a);
-  return function(t) {
-    var b = i(t);
-    a.x0 = b.x;
-    a.dx0 = b.dx;
-    return arc(b);
-  };
-}
-
 
 function mouseovered(d) {
   node
@@ -200,7 +173,6 @@ function packageHierarchy(classes) {
     find(d.name, d);
   });
 
-  console.dir(map);
   return map[""];
 }
 
