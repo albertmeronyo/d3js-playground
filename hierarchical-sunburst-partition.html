@@ -46,12 +46,13 @@
   stroke: #2ca02c;
 }
 
-.path {
-  stroke: #000;
+path {
+  stroke: #fff;
+  opacity: 1;
 }
 
-.path:hover {
-  fill: #000;
+path:hover {
+  opacity: .5;
 }
 
 </style>
@@ -126,10 +127,24 @@ d3.json("flare-hierarchical-sizes.json", function(error, classes) {
     .enter().append("path")
       .attr("display", function(d) { return d.depth ? null : "none"; }) // hide inner ring
       .attr("d", arc)
-      .style("stroke", "#fff")
       .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
       .style("fill-rule", "evenodd")
+      .on("mouseover", mouseoverpath)
+      .on("mouseout", mouseoutpath);
 });
+
+function mouseoverpath(d) {
+    node
+	.classed("node--target", function(n) { if (n == d) return true; });
+
+}
+
+function mouseoutpath(d) {
+    node
+	.classed("node--target", false)
+	.classed("node--source", false);
+
+}
 
 function mouseovered(d) {
   node
