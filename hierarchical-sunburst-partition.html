@@ -2,57 +2,46 @@
 <meta charset="utf-8">
 <style>
 
-.node {
-  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
-  fill: #bbb;
-}
 
-.node:hover {
-  fill: #000;
+.node {
+    font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    fill: #fff;
 }
 
 .link {
-  stroke: steelblue;
-  stroke-opacity: .4;
-  fill: none;
-  pointer-events: none;
+    stroke: steelblue;
+    stroke-opacity: .4;
+    fill: none;
+    pointer-events: none;
 }
 
-.node:hover,
 .node--source,
 .node--target {
-  font-weight: 700;
-}
-
-.node--source {
-  fill: #2ca02c;
-}
-
-.node--target {
-  fill: #d62728;
+    font-weight: 700;
+    fill: #000;
 }
 
 .link--source,
 .link--target {
-  stroke-opacity: 1;
-  stroke-width: 2px;
+    stroke-opacity: 1;
+    stroke-width: 2px;
 }
 
 .link--source {
-  stroke: #d62728;
+    stroke: #d62728;
 }
 
 .link--target {
-  stroke: #2ca02c;
+    stroke: #2ca02c;
 }
 
 path {
-  stroke: #fff;
-  opacity: 1;
+    stroke: #fff;
+    opacity: 1;
 }
 
 path:hover {
-  opacity: .5;
+    opacity: .5;
 }
 
 </style>
@@ -62,7 +51,7 @@ path:hover {
 
 var diameter = 960,
     radius = diameter / 2,
-    innerRadius = radius - 120,
+    innerRadius = radius - 150,
     partitionRadius = radius - 100,
     color = d3.scale.category20c();
 
@@ -118,9 +107,7 @@ d3.json("flare-hierarchical-sizes.json", function(error, classes) {
       .attr("dy", ".31em")
       .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")" + (d.x < 180 ? "" : "rotate(180)"); })
       .style("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-      .text(function(d) { return d.key; })
-      .on("mouseover", mouseovered)
-      .on("mouseout", mouseouted);
+      .text(function(d) { return d.key; });
 
   path = svg.datum(nodes[1]).append("g").selectAll("path")
       .data(partition.nodes)
@@ -135,8 +122,19 @@ d3.json("flare-hierarchical-sizes.json", function(error, classes) {
 
 function mouseoverpath(d) {
     node
-	.classed("node--target", function(n) { if (n == d) return true; });
+	.each(function(n) { n.target = n.source = false; });
 
+    node
+	.classed("node--source", function(n) { if (n == d) return true; })
+
+    link
+	.classed("link--target", function(l) { if (l.target === d) return l.source.source = true; })
+	.classed("link--source", function(l) { if (l.source === d) return l.target.target = true; })
+	.filter(function(l) { return l.target === d || l.source === d; })
+	.each(function() { this.parentNode.appendChild(this); });
+
+    node
+    	.classed("node--target", function(n) { return n.target; });    
 }
 
 function mouseoutpath(d) {
@@ -144,33 +142,11 @@ function mouseoutpath(d) {
 	.classed("node--target", false)
 	.classed("node--source", false);
 
+    link
+	.classed("link--target", false)
+	.classed("link--source", false);
 }
 
-function mouseovered(d) {
-  node
-      .each(function(n) { n.target = n.source = false; });
-
-  link
-      .classed("link--target", function(l) { if (l.target === d) return l.source.source = true; })
-      .classed("link--source", function(l) { if (l.source === d) return l.target.target = true; })
-    .filter(function(l) { return l.target === d || l.source === d; })
-      .each(function() { this.parentNode.appendChild(this); });
-
-  node
-      .classed("node--target", function(n) { return n.target; })
-      .classed("node--source", function(n) { return n.source; });
-
-}
-
-function mouseouted(d) {
-  link
-      .classed("link--target", false)
-      .classed("link--source", false);
-
-  node
-      .classed("node--target", false)
-      .classed("node--source", false);
-}
 
 d3.select(self.frameElement).style("height", diameter + "px");
 
